@@ -1,0 +1,145 @@
+---
+title: "Project1"
+author: "Sofia Schnurrenberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+getwd()
+```
+
+# Objective vs n graph
+```{r}
+# N - num of seats on the flight 
+# gamma - probability of overbooking 
+# p - probability of a show 
+
+obj = function(x, N, gamma, p)
+{ 
+    
+  objfun <- 1- gamma -pbinom(N, x, p)
+
+}
+
+ntickets = function (N, gamma, p){ 
+  
+  #plotting graph/getting data
+  x<- 400:500
+  objective = function (x) { obj(x, N, gamma, p)} #calling objective function
+  (curve(objective,xlim=c(400,500),ylim=c(-0.05,1.),col="Orange",lwd=2, main="Objective vs. n", xlab= "n", ylab ="objective funct."))
+
+  #getting minimum of the objecdtive function  
+  obj= abs(round(obj(x, N, gamma, p), 5))
+
+  index = which.min(obj)
+
+  #setting horizontal and vertical lines at x=0 and y = 400+index
+  abline(h=0, col="blue")
+  abline(v=400 + index, col="blue") # UPDATE WHEN YOU FIND N
+  
+  liln = 400 + index
+  
+  #creating my list of variables 
+  list<- list(n = liln, N = N, p, gamma = gamma)
+  list
+  
+  text(x= 450, y = 0.2, paste("Number of Tickets to be sold: ", liln))
+
+
+}
+ntickets(400, 0.02, 0.95)
+
+```
+
+
+
+# n vs Gamma
+```{r}
+# plotting n vs. gamma 
+#same function as before but with out the graphing element to collect data 
+ntickets2 = function (N, gamma, p){ 
+  
+  x<- 400:500
+  objective = function (x) { obj(x, N, gamma, p)} #calling objective function
+  
+  #getting minimum of the objecdtive function  
+  obj= abs(round(obj(x, N, gamma, p), 5))
+ #print(paste(obj))
+  index = which.min(obj)
+  #print(obj[index])
+  #print(index)
+  
+  liln = 400 + index
+  
+  return (liln)
+
+}
+
+# lil n for gamma values
+array = c()
+
+for(gamma in seq(from = 0.02, to = 1, by = 0.01))
+{ 
+  n= ntickets2(400, gamma, 0.95)
+  #print(n)
+  array <- append(array,n)
+}
+
+gammaVals = c(seq(from = 0.02, to = 1, by = 0.01))
+
+data.df <- data.frame(gammaVals, array)
+data.df
+
+library(ggplot2)
+
+#scatter plot
+b <- ggplot(data.df,aes(x = gammaVals, y = array)) + geom_point() + ggtitle("n vs. Gamma") + labs(x = "Gamma Values", y = "n Values")
+b
+
+```
+
+
+# n vs p graph
+```{r}
+
+ntickets2 = function (N, gamma, p){ 
+  
+  x<- 400:1000
+  objective = function (x) { obj(x, N, gamma, p)} #calling objective function
+  
+  #getting minimum of the objecdtive function  
+  obj= abs(round(obj(x, N, gamma, p), 5))
+  
+  index = which.min(obj)
+
+  liln = 400 + index
+  
+  return (liln)
+
+}
+
+# lil n for gamma values
+array = c()
+
+for(p in seq(from = 0.35, to = 1, by = 0.05))
+{ 
+  n= ntickets2(400, 0.02, p)
+  array <- append(array,n)
+}
+
+pVals = c(seq(from = 0.35, to = 1, by = 0.05))
+
+data.df <- data.frame(pVals, array)
+data.df
+
+#scatter plot
+b <- ggplot(data.df,aes(x = pVals, y = array)) + geom_point() + labs(x = "P Values", y = "n Values", title = "n VS. p plot")
+b
+
+```
+
